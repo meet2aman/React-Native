@@ -15,8 +15,11 @@ import EmptyState from "@/components/customs/EmptyState";
 import { getAllPosts, getLatestPosts } from "@/lib/appwrite";
 import useAppwrite from "@/hooks/useAppwrite";
 import VideoCard from "@/components/customs/VideoCard";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 const HomeScreen = () => {
+  const { user, setUser, setIsLoggedIn } = useGlobalContext();
+
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -38,9 +41,11 @@ const HomeScreen = () => {
             <View className="justify-between items-center flex-row mb-6">
               <View>
                 <Text className="font-pmedium text-sm text-gray-100">
-                  Welcome Back
+                  Welcome Back,
                 </Text>
-                <Text className="text-2xl font-psemibold text-white">One</Text>
+                <Text className="text-2xl font-psemibold text-white">
+                  {user.username}
+                </Text>
               </View>
               <View className="mt-1.5">
                 <Image
@@ -50,12 +55,7 @@ const HomeScreen = () => {
                 />
               </View>
             </View>
-            <SearchInput
-              value={""}
-              handleChangeText={function (e: string): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
+            <SearchInput />
             <View className="w-full flex-1 pt-5 pb-8 mt-5">
               <Text className="text-gray-100 font-pregular text-lg mb-3">
                 Latest Videos

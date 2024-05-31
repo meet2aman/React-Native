@@ -176,9 +176,10 @@ export async function getUserPosts(userId: string) {
 
 ///// -----------  logout function  ----------------    //////
 
-const signOut = async () => {
+export const signOut = async () => {
   try {
-    const session = await account.deleteSession();
+    const session = await account.deleteSession("current");
+    return session;
   } catch (error: any) {
     throw error;
   }

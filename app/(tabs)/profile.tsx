@@ -1,32 +1,85 @@
-import { SafeAreaView, Text, TextInput, View } from "react-native";
-import React from "react";
+import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
+import React, { useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import SearchInput from "@/components/customs/SearchInput";
+import Trending from "@/components/customs/Trending";
+import EmptyState from "@/components/customs/EmptyState";
+import { getUserPosts, searchPosts, signOut } from "@/lib/appwrite";
+import useAppwrite from "@/hooks/useAppwrite";
+import VideoCard from "@/components/customs/VideoCard";
+import { router, useLocalSearchParams } from "expo-router";
+import { useGlobalContext } from "@/context/GlobalProvider";
+import { icons } from "@/constants";
+import InfoBox from "@/components/customs/InfoBox";
 
-const profile = () => {
-  const [text, onChangeText] = React.useState("");
-  const [number, onChangeNumber] = React.useState("");
+const Search = () => {
+  const { user, setUser, setIsLoggedIn } = useGlobalContext();
+  const { query } = useLocalSearchParams();
+  const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id));
+
+  const handleLogout = async () => {
+    await signOut();
+    setUser(null);
+    setIsLoggedIn(false);
+    router.replace("sign-in");
+  };
+
+  // useEffect(() => {
+  //   refetch();
+  // }, [query]);
 
   return (
-    <View className="flex justify-center items-center rounded-full">
-      <Text className="text-3xl bg-orange-500 text-center py-2 px-8 inline rounded font-bold capitalize mt-10">
-        profile
-      </Text>
-      <Text className="text-3xl bg-orange-500 text-center py-2 px-8 inline rounded font-bold capitalize mt-10">
-        Aman Kushwaha
-      </Text>
-      <Text className="text-3xl bg-orange-500 text-center py-2 px-8 inline rounded font-bold capitalize mt-10">
-        profile
-      </Text>
-      <SafeAreaView>
-        <TextInput
-          className="border border-red-500 p-3 mt-5 rounded-full w-[20rem]"
-          onChangeText={onChangeText}
-          value={text}
-          placeholder="Enter your Email"
-        />
-      </SafeAreaView>
-      <Text>{text}</Text>
-    </View>
+    <SafeAreaView style={{ backgroundColor: "#161622", height: "100%" }}>
+      <FlatList
+        data={posts}
+        keyExtractor={(item: any) => item.$id}
+        renderItem={({ item }) => <VideoCard videos={item} />}
+        ListHeaderComponent={() => (
+          <View className="w-full justify-center items-center mt-6 mb-12 px-4">
+            <TouchableOpacity
+              className="w-full items-end mb-10 px-2"
+              onPress={handleLogout}
+            >
+              <Image
+                resizeMode="contain"
+                source={icons.logout}
+                className="w-6 h-6"
+              />
+            </TouchableOpacity>
+            <View className="w-16 h-16 border border-secondary rounded-lg justify-center items-center">
+              <Image
+                source={{ uri: user?.avatar }}
+                className="w-[90%] h-[90%] rounded-lg"
+                resizeMode="cover"
+              />
+            </View>
+            <InfoBox
+              title={user?.username}
+              containerStyles="mt-5"
+              titleStyles="text-lg"
+            />
+            <View className="flex-row mt-5">
+              <InfoBox
+                title={posts.length || 0}
+                subTitle="Posts"
+                containerStyles="mr-10"
+                titleStyles="text-xl"
+              />
+              <InfoBox
+                title={"1.3k"}
+                subTitle="Followers"
+                containerStyles=""
+                titleStyles="text-lg"
+              />
+            </View>
+          </View>
+        )}
+        ListEmptyComponent={() => (
+          <EmptyState title="No video found !" subTitle="No video found!" />
+        )}
+      />
+    </SafeAreaView>
   );
 };
 
-export default profile;
+export default Search;
