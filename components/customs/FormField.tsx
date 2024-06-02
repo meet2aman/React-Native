@@ -20,7 +20,7 @@ const FormField = ({
 }: {
   placeholder: string;
   otherStyles: any;
-  keyboardType: string;
+  keyboardType?: string;
   value: string;
   title: string;
   handleChangeText: (e: string) => void;
@@ -33,7 +33,7 @@ const FormField = ({
       </Text>
       <View className="!w-full h-16 px-4 bg-black-100 border-2 border-black-100 focus:border-secondary-200 rounded-2xl items-center flex-row">
         <TextInput
-          className="flex-1 text-white font-psemibold text-base w-full items-center"
+          className="flex-1 text-white font-psemibold text-base w-full items-center tracking-wide"
           value={value}
           placeholder={placeholder}
           placeholderTextColor={"#7b7b8b"}

@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import {
+  Storage,
   Account,
   Avatars,
   Client,
@@ -29,6 +30,7 @@ client
 const account = new Account(client);
 const avatars = new Avatars(client);
 const databases = new Databases(client);
+const storage = new Storage(client);
 
 ///// ----------- Creating a new user Function   ----------------//////
 
@@ -116,7 +118,8 @@ export const getAllPosts = async () => {
   try {
     const posts = await databases.listDocuments(
       appWriteConfig.databaseId,
-      appWriteConfig.videoCollectionId
+      appWriteConfig.videoCollectionId,
+      [Query.orderDesc("$createdAt")]
     );
     return posts.documents;
   } catch (error: any) {
@@ -182,5 +185,85 @@ export const signOut = async () => {
     return session;
   } catch (error: any) {
     throw error;
+  }
+};
+
+/*************  Video Handling Handled here  **************/
+
+///// -----------  Create a video function  ----------------    //////
+
+export const createVideo = async (form: any) => {
+  try {
+    const [thumbnailUrl, videoUrl] = await Promise.all([
+      uploadFile(form.thumbnail, "image"),
+      uploadFile(form.video, "video"),
+    ]);
+    const newPost = await databases.createDocument(
+      appWriteConfig.databaseId,
+      appWriteConfig.videoCollectionId,
+      ID.unique(),
+      {
+        title: form.title,
+        thumbnail: thumbnailUrl,
+        video: videoUrl,
+        prompt: form.prompt,
+        creator: form.userId,
+      }
+    );
+    return newPost;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+///// -----------  Upload file to bucket and get url  ----------------    //////
+
+export const uploadFile = async (file: any, type: string) => {
+  if (!file) return;
+  console.log("File", file);
+  const asset = {
+    name: file.uri.split("/").pop(), // Extract filename from URI
+    type: file.type, // Use file type directly from the picker
+    size: file.fileSize || 0, // Set a default if fileSize is undefined
+    uri: file.uri,
+  };
+  try {
+    const uploadFile = await storage.createFile(
+      appWriteConfig.storageId,
+      ID.unique(),
+      asset
+    );
+    const fileUrl = await getFilePreview(uploadFile.$id, type);
+    console.log(!fileUrl);
+    console.log("Fileurl", fileUrl);
+    return fileUrl;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+///// -----------  after uploading getting preview  ----------------    //////
+export const getFilePreview = async (fileId: string, type: string) => {
+  let fileUrl;
+  try {
+    if (type === "video") {
+      fileUrl = storage.getFileView(appWriteConfig.storageId, fileId);
+    } else if (type === "image") {
+      fileUrl = storage.getFilePreview(
+        appWriteConfig.storageId,
+        fileId,
+        2000,
+        2000,
+        //@ts-ignore
+        "top",
+        100
+      );
+    } else {
+      throw new Error("Inavlid File Type");
+    }
+    if (!fileUrl) throw Error;
+    return fileUrl;
+  } catch (error) {
+    throw new Error("Function not implemented.");
   }
 };
