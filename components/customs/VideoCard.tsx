@@ -1,6 +1,13 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Button,
+} from "react-native";
 import React, { useState } from "react";
-import { icons } from "@/constants";
+import { icons, images } from "@/constants";
 import WebView from "react-native-webview";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 
@@ -22,6 +29,8 @@ interface VideoCardProps {
 
 const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
   const [play, setPlay] = useState(false);
+  const [toggle, setToggle] = useState(false);
+
   const {
     title,
     thumbnail,
@@ -38,13 +47,13 @@ const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
   };
   return (
     <View className="flex-col items-center mb-14 px-4">
-      <View className="flex-row gap-3 items-start">
+      <View className="flex-row gap-3 items-center">
         <View className="justify-center flex-row flex-1 items-center">
-          <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center  p-0.5">
+          <View className="w-[46px] h-[46px] rounded-full justify-center items-center border-2 border-secondary  p-0.5">
             <Image
               source={{ uri: avatar }}
               resizeMode="cover"
-              className="w-full h-full rounded-lg"
+              className="w-full h-full rounded-full"
             />
           </View>
           <View className="flex-1 justify-center ml-3 gap-y-1">
@@ -62,13 +71,41 @@ const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
             </Text>
           </View>
         </View>
-        <View className="">
+        <TouchableOpacity
+          className="items-center"
+          onPress={() => setToggle((prev) => !prev)}
+        >
           <Image
             source={icons.menu}
             className="h-5 w-5 "
             resizeMode="contain"
           />
-        </View>
+        </TouchableOpacity>
+        {toggle && (
+          <View
+            style={{ zIndex: 999 }}
+            className="bg-[#1E1E2D] border border-[#232533] rounded-2xl flex gap-2 px-6 py-4 absolute right-0 top-14 z-50"
+          >
+            <View className="flex flex-row justify-start items-center gap-4 ">
+              <Image
+                source={icons.bookmark}
+                className="h-5 w-5 fill-green-500 "
+                resizeMode="contain"
+              />
+              <Text className="text-gray-100 text-lg font-pregular ">Save</Text>
+            </View>
+            <View className="flex flex-row justify-start items-center gap-4">
+              <Image
+                source={icons.trash}
+                className="h-5 w-5"
+                resizeMode="contain"
+              />
+              <Text className="text-gray-100 text-lg font-pregular">
+                Delete
+              </Text>
+            </View>
+          </View>
+        )}
       </View>
       {play ? (
         isVimeoUrl(videoUrl) ? (
@@ -92,11 +129,11 @@ const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setPlay(true)}
-          className="w-full h-60 rounded-xl mt-3 relative justify-center items-center"
+          className="w-full h-60 rounded-xl mt-3 relative justify-center items-center -z-50"
         >
           <Image
             source={{ uri: thumbnail }}
-            className="w-full h-full rounded-xl mt-3"
+            className="w-full h-full rounded-xl mt-3 -z-30"
             resizeMode="cover"
           />
           <Image

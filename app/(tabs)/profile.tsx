@@ -11,6 +11,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { icons } from "@/constants";
 import InfoBox from "@/components/customs/InfoBox";
+import Toast from "react-native-toast-message";
 
 const Search = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
@@ -19,6 +20,11 @@ const Search = () => {
 
   const handleLogout = async () => {
     await signOut();
+    Toast.show({
+      type: "success",
+      text1: "Logged Out Successfully",
+      topOffset: 50,
+    });
     setUser(null);
     setIsLoggedIn(false);
     router.replace("sign-in");
@@ -37,19 +43,22 @@ const Search = () => {
         ListHeaderComponent={() => (
           <View className="w-full justify-center items-center mt-6 mb-12 px-4">
             <TouchableOpacity
-              className="w-full items-end mb-10 px-2"
+              className="flex flex-row gap-4 w-full justify-end items-center mb-10 px-2"
               onPress={handleLogout}
             >
+              <Text className="text-gray-100 font-psemibold text-lg">
+                Logout
+              </Text>
               <Image
                 resizeMode="contain"
                 source={icons.logout}
                 className="w-6 h-6"
               />
             </TouchableOpacity>
-            <View className="w-16 h-16 border border-secondary rounded-lg justify-center items-center">
+            <View className="w-16 h-16 border border-secondary rounded-full justify-center items-center">
               <Image
                 source={{ uri: user?.avatar }}
-                className="w-[90%] h-[90%] rounded-lg"
+                className="w-[90%] h-[90%] rounded-full"
                 resizeMode="cover"
               />
             </View>
