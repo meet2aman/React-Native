@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { createVideo } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import Toast from "react-native-toast-message";
 type SelectType = "video" | "image";
 
 const CreateScreen = () => {
@@ -54,17 +55,32 @@ const CreateScreen = () => {
 
   const handleUpload = async () => {
     if (!form.thumbnail || !form.prompt || !form.title || !form.video) {
-      return Alert.alert("Please Fill in All fields");
+      Toast.show({
+        type: "errorToast",
+        text1: "❗️ Please Fill in All fields",
+        topOffset: 50,
+      });
+      return;
     }
+
     setUploading(true);
     try {
       await createVideo({
         ...form,
         userId: user.$id,
       });
-      Alert.alert("Success", "Post uploaded successfully");
+      Toast.show({
+        type: "tomatoToast",
+        text1: "Post uploaded successfully 🎉",
+        topOffset: 50,
+      });
       router.push("/home");
     } catch (error: any) {
+      Toast.show({
+        type: "errorToast",
+        text1: "❗️ Error While creating a post",
+        topOffset: 50,
+      });
       Alert.alert("Error", error.message);
     } finally {
       setForm({ title: "", video: null, thumbnail: null, prompt: "" });

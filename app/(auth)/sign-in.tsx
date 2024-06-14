@@ -7,6 +7,7 @@ import FormField from "@/components/customs/FormField";
 import CustomButton from "@/components/customs/CustomButton";
 import { createUser, getCurrentUser, signIn } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import Toast from "react-native-toast-message";
 
 const SignInScreen = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
@@ -26,10 +27,20 @@ const SignInScreen = () => {
 
       setUser(result);
       setIsLoggedIn(true);
-      Alert.alert("Success", "Logged in successfully");
+      // Alert.alert("Success", "Logged in successfully");
+      Toast.show({
+        type: "tomatoToast",
+        text1: "Logged in 😊",
+        topOffset: 50,
+      });
       router.replace("/home");
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      // Alert.alert("Error", error.message);
+      Toast.show({
+        type: "errorToast",
+        text1: "Error in Logging out !",
+        topOffset: 50,
+      });
     } finally {
       setIsSubmit(false);
     }

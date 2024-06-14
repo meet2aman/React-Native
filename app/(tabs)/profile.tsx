@@ -55,7 +55,7 @@ const Search = () => {
                 className="w-6 h-6"
               />
             </TouchableOpacity>
-            <View className="w-16 h-16 border border-secondary rounded-full justify-center items-center">
+            <View className="w-24 h-24 border border-secondary rounded-full justify-center items-center">
               <Image
                 source={{ uri: user?.avatar }}
                 className="w-[90%] h-[90%] rounded-full"

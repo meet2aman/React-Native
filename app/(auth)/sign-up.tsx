@@ -7,6 +7,7 @@ import FormField from "@/components/customs/FormField";
 import CustomButton from "@/components/customs/CustomButton";
 import { createUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import Toast from "react-native-toast-message";
 
 const SignUpScreen = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
@@ -26,10 +27,20 @@ const SignUpScreen = () => {
       const result = await createUser(form.email, form.password, form.username);
       setUser(result);
       setIsLoggedIn(true);
-      Alert.alert("Success", "Signed Up  successfully");
+      // Alert.alert("Success", "Signed Up  successfully");
+      Toast.show({
+        type: "tomatoToast",
+        text1: "Signed Up successfully 🎊",
+        topOffset: 50,
+      });
       router.replace("/home");
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      Toast.show({
+        type: "errorToast",
+        text1: "Error in Signing Up 😢",
+        topOffset: 50,
+      });
+      // Alert.alert("Error", error.message);
     } finally {
       setIsSubmit(false);
     }
