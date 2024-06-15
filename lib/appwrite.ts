@@ -216,6 +216,21 @@ export const createVideo = async (form: any) => {
   }
 };
 
+///// -----------  delete a video function  ----------------    //////
+export const deleteVideo = async (id: any) => {
+  console.log("ID::::::", id);
+  try {
+    await databases.deleteDocument(
+      appWriteConfig.databaseId,
+      appWriteConfig.videoCollectionId,
+      id
+    );
+  } catch (error: any) {
+    console.log(error);
+    throw error;
+  }
+};
+
 ///// -----------  Upload file to bucket and get url  ----------------    //////
 
 export const uploadFile = async (file: any, type: string) => {

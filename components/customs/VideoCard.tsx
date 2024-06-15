@@ -10,6 +10,8 @@ import React, { useState } from "react";
 import { icons, images } from "@/constants";
 import WebView from "react-native-webview";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
+import Toast from "react-native-toast-message";
+import { deleteVideo } from "@/lib/appwrite";
 
 interface Creator {
   username: string;
@@ -17,6 +19,7 @@ interface Creator {
 }
 
 interface VideoData {
+  $id: string;
   title: string;
   thumbnail: string;
   video: string;
@@ -25,13 +28,21 @@ interface VideoData {
 
 interface VideoCardProps {
   videos: VideoData;
+  profileFlag?: boolean;
+  onDelete: (id: string) => void;
 }
 
-const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
+const VideoCard: React.FC<VideoCardProps> = ({
+  videos,
+  profileFlag,
+  onDelete,
+}) => {
+  console.log(videos.$id);
   const [play, setPlay] = useState(false);
   const [toggle, setToggle] = useState(false);
 
   const {
+    $id,
     title,
     thumbnail,
     video: videoUrl,
@@ -45,6 +56,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
       setPlay(false);
     }
   };
+
   return (
     <View className="flex-col items-center mb-14 px-4">
       <View className="flex-row gap-3 items-center">
@@ -86,15 +98,24 @@ const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
             style={{ zIndex: 999 }}
             className="bg-[#1E1E2D] border border-[#232533] rounded-2xl flex gap-2 px-6 py-4 absolute right-0 top-14 z-50"
           >
-            <View className="flex flex-row justify-start items-center gap-4 ">
-              <Image
-                source={icons.bookmark}
-                className="h-5 w-5 fill-green-500 "
-                resizeMode="contain"
-              />
-              <Text className="text-gray-100 text-lg font-pregular ">Save</Text>
-            </View>
-            <View className="flex flex-row justify-start items-center gap-4">
+            {!profileFlag ? (
+              <View className="flex flex-row justify-start items-center gap-4 ">
+                <Image
+                  source={icons.bookmark}
+                  className="h-5 w-5 fill-green-500 "
+                  resizeMode="contain"
+                />
+                <Text className="text-gray-100 text-lg font-pregular ">
+                  Save
+                </Text>
+              </View>
+            ) : (
+              ""
+            )}
+            <TouchableOpacity
+              className="flex flex-row justify-start items-center gap-4"
+              onPress={() => onDelete($id)}
+            >
               <Image
                 source={icons.trash}
                 className="h-5 w-5"
@@ -103,7 +124,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ videos }) => {
               <Text className="text-gray-100 text-lg font-pregular">
                 Delete
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
         )}
       </View>
@@ -155,7 +176,6 @@ const styles = StyleSheet.create({
     height: 240,
     borderRadius: 12,
     marginTop: 12,
-    // backgroundColor: "rgba(255, 255, 255, 0.1)",
     zIndex: -999,
   },
 });
