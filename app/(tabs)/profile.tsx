@@ -1,15 +1,8 @@
 import { View, Text, FlatList, TouchableOpacity, Image } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SearchInput from "@/components/customs/SearchInput";
-import Trending from "@/components/customs/Trending";
 import EmptyState from "@/components/customs/EmptyState";
-import {
-  deleteVideo,
-  getUserPosts,
-  searchPosts,
-  signOut,
-} from "@/lib/appwrite";
+import { deleteVideo, getUserPosts, signOut } from "@/lib/appwrite";
 import useAppwrite from "@/hooks/useAppwrite";
 import VideoCard from "@/components/customs/VideoCard";
 import { router, useLocalSearchParams } from "expo-router";
@@ -17,16 +10,16 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { icons } from "@/constants";
 import InfoBox from "@/components/customs/InfoBox";
 import Toast from "react-native-toast-message";
+import { ActionData } from "@/lib/functions";
 
 const ProfileScreen = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
-  const { query } = useLocalSearchParams();
   const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id));
 
   const handleLogout = async () => {
     await signOut();
     Toast.show({
-      type: "success",
+      type: "tomatoToast",
       text1: "Logged Out Successfully",
       topOffset: 50,
     });
@@ -35,22 +28,24 @@ const ProfileScreen = () => {
     router.replace("sign-in");
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteVideo(id);
-      Toast.show({
-        type: "tomatoToast",
-        text1: "Post deleted successfully 🎉",
-        topOffset: 50,
-      });
-      refetch();
-    } catch (error: any) {
-      Toast.show({
-        type: "errorToast",
-        text1: "Error deleting post 😢",
-        text2: error.message,
-        topOffset: 50,
-      });
+  const handleDelete = async (data: ActionData) => {
+    if (data.action === "delete") {
+      try {
+        await deleteVideo(data.postId);
+        Toast.show({
+          type: "tomatoToast",
+          text1: "Post deleted successfully 🎉",
+          topOffset: 50,
+        });
+        refetch();
+      } catch (error: any) {
+        Toast.show({
+          type: "errorToast",
+          text1: "Error deleting post 😢",
+          text2: error.message,
+          topOffset: 50,
+        });
+      }
     }
   };
 
@@ -64,7 +59,7 @@ const ProfileScreen = () => {
         data={posts}
         keyExtractor={(item: any) => item.$id}
         renderItem={({ item }) => (
-          <VideoCard videos={item} profileFlag={true} onDelete={handleDelete} />
+          <VideoCard videos={item} profileFlag={"profile"} fn={handleDelete} />
         )}
         ListHeaderComponent={() => (
           <View className="w-full justify-center items-center mt-6 mb-12 px-4">

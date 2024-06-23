@@ -7,7 +7,10 @@ import {
   Databases,
   ID,
   Query,
+  Role,
+  Permission,
 } from "react-native-appwrite";
+import { LikeAction } from "./functions";
 
 export const appWriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -46,11 +49,11 @@ export const createUser = async (
       password,
       username
     );
+
     if (!newAccount) throw Error;
+    await signIn(email, password);
 
     const avatarUrl = avatars.getInitials(username);
-
-    await signIn(email, password);
 
     const newUser = await databases.createDocument(
       appWriteConfig.databaseId,
@@ -62,9 +65,12 @@ export const createUser = async (
         password,
         username,
         avatar: avatarUrl,
-      }
+      },
+      [Permission.read(Role.user(newAccount.$id))]
     );
+    return newUser;
   } catch (error: any) {
+    console.log("Error in Creating User");
     throw new Error(error);
   }
 };
@@ -218,7 +224,7 @@ export const createVideo = async (form: any) => {
 
 ///// -----------  delete a video function  ----------------    //////
 export const deleteVideo = async (id: any) => {
-  console.log("ID::::::", id);
+  // console.log("ID::::::", id);
   try {
     await databases.deleteDocument(
       appWriteConfig.databaseId,
@@ -249,8 +255,8 @@ export const uploadFile = async (file: any, type: string) => {
       asset
     );
     const fileUrl = await getFilePreview(uploadFile.$id, type);
-    console.log(!fileUrl);
-    console.log("Fileurl", fileUrl);
+    // console.log(!fileUrl);
+    // console.log("Fileurl", fileUrl);
     return fileUrl;
   } catch (error: any) {
     throw error;
@@ -280,5 +286,73 @@ export const getFilePreview = async (fileId: string, type: string) => {
     return fileUrl;
   } catch (error) {
     throw new Error("Function not implemented.");
+  }
+};
+
+///// -----------  Saved or bookmarked the video  ----------------    //////
+
+export const saveVideo = async ({ userId, postId, action }: LikeAction) => {
+  console.log("userId::", userId);
+  if (action === "like") {
+    try {
+      // Get the existing post document
+      if (!postId) throw new Error();
+      const post = await databases.getDocument(
+        appWriteConfig.databaseId,
+        appWriteConfig.videoCollectionId,
+        postId
+      );
+
+      // Ensure `likedBy` array exists in the post
+      const likedBy = post.likedBy || [];
+      console.log(likedBy);
+
+      // Extract user IDs from the likedBy array
+      const likedByUserIds = likedBy.map((user: any) => user.$id);
+
+      console.log(likedByUserIds);
+      // Check if the user has already liked the post
+      if (likedByUserIds.includes(userId)) {
+        console.log("User has already liked this post.");
+        return "Already Saved";
+      }
+
+      // Push the userId to the likedBy array
+      likedBy.push(userId);
+
+      // Update the post document with the new likedBy array
+      await databases.updateDocument(
+        appWriteConfig.databaseId,
+        appWriteConfig.videoCollectionId,
+        postId,
+        {
+          likedBy: likedBy,
+        }
+      );
+
+      return "Post saved successfully!";
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  }
+};
+
+export const fetchSavedVideos = async (userId: string) => {
+  console.log(userId);
+  try {
+    // Assuming you have a function to query the database
+
+    const allPosts = await getAllPosts();
+
+    const savedVideos = allPosts.filter((post) => {
+      const isLikedByUser = post.likedBy.some(
+        (likedByObj: any) => likedByObj.$id === userId
+      );
+      return isLikedByUser;
+    });
+    return savedVideos;
+  } catch (error) {
+    console.error("Error fetching liked posts:", error);
+    throw error;
   }
 };

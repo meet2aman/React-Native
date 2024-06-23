@@ -27,7 +27,6 @@ const SignUpScreen = () => {
       const result = await createUser(form.email, form.password, form.username);
       setUser(result);
       setIsLoggedIn(true);
-      // Alert.alert("Success", "Signed Up  successfully");
       Toast.show({
         type: "tomatoToast",
         text1: "Signed Up successfully 🎊",
@@ -40,7 +39,6 @@ const SignUpScreen = () => {
         text1: "Error in Signing Up 😢",
         topOffset: 50,
       });
-      // Alert.alert("Error", error.message);
     } finally {
       setIsSubmit(false);
     }

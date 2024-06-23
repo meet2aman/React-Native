@@ -1,20 +1,12 @@
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  Button,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useState } from "react";
-import { icons, images } from "@/constants";
+import { icons } from "@/constants";
 import WebView from "react-native-webview";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
-import Toast from "react-native-toast-message";
-import { deleteVideo } from "@/lib/appwrite";
-
+import { ActionData } from "@/lib/functions";
+import { useGlobalContext } from "@/context/GlobalProvider";
 interface Creator {
-  username: string;
+  username: string | "";
   avatar: string;
 }
 
@@ -23,31 +15,20 @@ interface VideoData {
   title: string;
   thumbnail: string;
   video: string;
-  creator: Creator;
+  creator: Creator | null; // Allow creator to be null
 }
-
 interface VideoCardProps {
   videos: VideoData;
-  profileFlag?: boolean;
-  onDelete: (id: string) => void;
+  profileFlag?: "profile" | "bookmark" | "home" | null;
+  fn: (data: ActionData) => void;
 }
 
-const VideoCard: React.FC<VideoCardProps> = ({
-  videos,
-  profileFlag,
-  onDelete,
-}) => {
-  console.log(videos.$id);
+const VideoCard: React.FC<VideoCardProps> = ({ videos, profileFlag, fn }) => {
   const [play, setPlay] = useState(false);
   const [toggle, setToggle] = useState(false);
+  const { user, setUser, setIsLoggedIn } = useGlobalContext();
 
-  const {
-    $id,
-    title,
-    thumbnail,
-    video: videoUrl,
-    creator: { username, avatar },
-  } = videos;
+  const { $id, title, thumbnail, video: videoUrl, creator } = videos;
   const isVimeoUrl = (url: string) => {
     return url.includes("vimeo.com");
   };
@@ -57,13 +38,68 @@ const VideoCard: React.FC<VideoCardProps> = ({
     }
   };
 
+  const renderMenuOptions = () => {
+    switch (profileFlag) {
+      case "home":
+        return (
+          <TouchableOpacity
+            onPress={() =>
+              fn({ action: "like", postId: $id, userId: user.$id })
+            }
+            className="flex flex-row justify-start items-center gap-4 "
+          >
+            <Image
+              source={icons.bookmark}
+              className="h-5 w-5 fill-green-500 "
+              resizeMode="contain"
+            />
+            <Text className="text-gray-100 text-lg font-pregular ">Save</Text>
+          </TouchableOpacity>
+        );
+      case "profile":
+        return (
+          <TouchableOpacity
+            className="flex flex-row justify-start items-center gap-4"
+            onPress={() => fn({ action: "delete", postId: $id })}
+          >
+            <Image
+              source={icons.trash}
+              className="h-5 w-5"
+              resizeMode="contain"
+            />
+            <Text className="text-gray-100 text-lg font-pregular">Delete</Text>
+          </TouchableOpacity>
+        );
+      case "bookmark":
+        return (
+          <TouchableOpacity
+            className="flex flex-row justify-start items-center gap-4"
+            onPress={() =>
+              fn({ action: "dislike", postId: $id, userId: user.$id })
+            }
+          >
+            <Image
+              source={icons.unsave}
+              className="h-5 w-5"
+              resizeMode="contain"
+            />
+            <Text className="text-gray-100 text-lg font-pregular">Remove</Text>
+          </TouchableOpacity>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <View className="flex-col items-center mb-14 px-4">
       <View className="flex-row gap-3 items-center">
         <View className="justify-center flex-row flex-1 items-center">
           <View className="w-[46px] h-[46px] rounded-full justify-center items-center border-2 border-secondary  p-0.5">
             <Image
-              source={{ uri: avatar }}
+              source={{
+                uri: creator?.avatar || "https://github.com/shadcn.png",
+              }}
               resizeMode="cover"
               className="w-full h-full rounded-full"
             />
@@ -79,7 +115,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
               className="font-pregular text-xs text-gray-100 "
               numberOfLines={1}
             >
-              {username}
+              {creator?.username}
             </Text>
           </View>
         </View>
@@ -98,33 +134,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
             style={{ zIndex: 999 }}
             className="bg-[#1E1E2D] border border-[#232533] rounded-2xl flex gap-2 px-6 py-4 absolute right-0 top-14 z-50"
           >
-            {!profileFlag ? (
-              <View className="flex flex-row justify-start items-center gap-4 ">
-                <Image
-                  source={icons.bookmark}
-                  className="h-5 w-5 fill-green-500 "
-                  resizeMode="contain"
-                />
-                <Text className="text-gray-100 text-lg font-pregular ">
-                  Save
-                </Text>
-              </View>
-            ) : (
-              ""
-            )}
-            <TouchableOpacity
-              className="flex flex-row justify-start items-center gap-4"
-              onPress={() => onDelete($id)}
-            >
-              <Image
-                source={icons.trash}
-                className="h-5 w-5"
-                resizeMode="contain"
-              />
-              <Text className="text-gray-100 text-lg font-pregular">
-                Delete
-              </Text>
-            </TouchableOpacity>
+            {renderMenuOptions()}
           </View>
         )}
       </View>

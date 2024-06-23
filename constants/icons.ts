@@ -13,6 +13,7 @@ import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import trash from "../assets/icons/trash.png";
+import unsave from "../assets/icons/unsave.png";
 
 export default {
   play,
@@ -29,4 +30,5 @@ export default {
   eyeHide,
   eye,
   trash,
+  unsave,
 };

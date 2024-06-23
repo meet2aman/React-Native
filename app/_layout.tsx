@@ -61,13 +61,13 @@ const RootLayout = () => {
       />
     ),
     tomatoToast: ({ text1, props }: { text1: string; props: any }) => (
-      <View className="flex justify-center items-center px-6 py-4 border border-green-500 max-w-[80%]  rounded-full bg-black">
-        <Text className="text-gray-100 text-md font-pregular">{text1}</Text>
+      <View className="flex justify-center items-center px-6 py-2 max-w-[80%] border-[2px] border-neutral-800  rounded-xl bg-black">
+        <Text className="text-gray-100 text-md font-pmedium">{text1}</Text>
       </View>
     ),
     errorToast: ({ text1, props }: { text1: string; props: any }) => (
-      <View className="flex justify-center items-center px-6 py-4 border border-red-500 max-w-[80%]  rounded-full bg-black">
-        <Text className="text-gray-100 text-md font-pregular">{text1}</Text>
+      <View className="flex justify-center items-center px-6 py-2 border border-red-800 max-w-[80%] rounded-xl bg-black">
+        <Text className="text-gray-100 text-md font-pmedium">{text1}</Text>
       </View>
     ),
   };

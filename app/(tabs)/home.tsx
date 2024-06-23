@@ -12,14 +12,15 @@ import { images } from "@/constants";
 import SearchInput from "@/components/customs/SearchInput";
 import Trending from "@/components/customs/Trending";
 import EmptyState from "@/components/customs/EmptyState";
-import { getAllPosts, getLatestPosts } from "@/lib/appwrite";
+import { getAllPosts, getLatestPosts, saveVideo } from "@/lib/appwrite";
 import useAppwrite from "@/hooks/useAppwrite";
 import VideoCard from "@/components/customs/VideoCard";
 import { useGlobalContext } from "@/context/GlobalProvider";
+import Toast from "react-native-toast-message";
+import { ActionData } from "@/lib/functions";
 
 const HomeScreen = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
-
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -30,12 +31,38 @@ const HomeScreen = () => {
     setRefreshing(false);
   };
 
+  const handleSave = async (data: ActionData) => {
+    if (data.action === "like") {
+      console.log(data.postId, data.userId);
+      try {
+        const response = await saveVideo({
+          userId: data.userId!,
+          postId: data.postId!,
+          action: "like",
+        });
+        Toast.show({
+          type: "tomatoToast",
+          text1: response,
+          topOffset: 50,
+        });
+      } catch (error: any) {
+        Toast.show({
+          type: "errortomatoToast",
+          text1: "Error in Liking Video",
+          topOffset: 50,
+        });
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={{ backgroundColor: "#161622", height: "100%" }}>
       <FlatList
         data={posts}
         keyExtractor={(item: any) => item.$id}
-        renderItem={({ item }) => <VideoCard videos={item} />}
+        renderItem={({ item }) => (
+          <VideoCard videos={item} profileFlag={"home"} fn={handleSave} />
+        )}
         ListHeaderComponent={() => (
           <View className="px-4 my-6 space-y-6">
             <View className="justify-between items-center flex-row mb-6">

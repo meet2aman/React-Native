@@ -27,7 +27,7 @@ const SignInScreen = () => {
 
       setUser(result);
       setIsLoggedIn(true);
-      // Alert.alert("Success", "Logged in successfully");
+
       Toast.show({
         type: "tomatoToast",
         text1: "Logged in 😊",
@@ -35,10 +35,9 @@ const SignInScreen = () => {
       });
       router.replace("/home");
     } catch (error: any) {
-      // Alert.alert("Error", error.message);
       Toast.show({
         type: "errorToast",
-        text1: "Error in Logging out !",
+        text1: "Error in Logging in",
         topOffset: 50,
       });
     } finally {
