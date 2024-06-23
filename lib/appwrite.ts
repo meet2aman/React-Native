@@ -10,7 +10,7 @@ import {
   Role,
   Permission,
 } from "react-native-appwrite";
-import { LikeAction } from "./functions";
+import { ActionData, DislikeAction, LikeAction } from "./functions";
 
 export const appWriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
@@ -354,5 +354,45 @@ export const fetchSavedVideos = async (userId: string) => {
   } catch (error) {
     console.error("Error fetching liked posts:", error);
     throw error;
+  }
+};
+
+export const UnsaveVideo = async ({
+  postId,
+  userId,
+  action,
+}: DislikeAction) => {
+  if (action === "dislike") {
+    try {
+      if (!postId || !userId) throw new Error("Invalid postId or userId");
+      const post = await databases.getDocument(
+        appWriteConfig.databaseId,
+        appWriteConfig.videoCollectionId,
+        postId
+      );
+      if (!post) throw new Error("Post not found");
+      const likedBy = post.likedBy;
+
+      if (!likedBy) throw new Error("LikedBy list not found");
+
+      const likedByUserIds = likedBy.map((user: any) => user.$id);
+
+      if (likedByUserIds.includes(userId)) {
+        const updatedLikedBy = likedBy.filter(
+          (user: any) => user.$id !== userId
+        );
+
+        await databases.updateDocument(
+          appWriteConfig.databaseId,
+          appWriteConfig.videoCollectionId,
+          postId,
+          { likedBy: updatedLikedBy }
+        );
+      }
+      return "Removed From saved";
+    } catch (error) {
+      console.error("Error fetching liked posts:", error);
+      throw error;
+    }
   }
 };

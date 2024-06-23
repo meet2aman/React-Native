@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchInput from "@/components/customs/SearchInput";
 import { useLocalSearchParams } from "expo-router";
-import { fetchSavedVideos, searchPosts } from "@/lib/appwrite";
+import { UnsaveVideo, fetchSavedVideos, searchPosts } from "@/lib/appwrite";
 import useAppwrite from "@/hooks/useAppwrite";
 import CustomButton from "@/components/customs/CustomButton";
 import Toast from "react-native-toast-message";
@@ -38,7 +38,24 @@ const BookmarkScreen = () => {
 
   const handleUnsaved = async (data: ActionData) => {
     if (data.action === "dislike") {
-
+      try {
+        const response = await UnsaveVideo({
+          userId: data.userId,
+          postId: data.postId,
+          action: "dislike",
+        });
+        Toast.show({
+          type: "tomatoToast",
+          text1: response,
+          topOffset: 60,
+        });
+      } catch (error: any) {
+        Toast.show({
+          type: "errortomatoToast",
+          text1: "Error Unsaving Video",
+          topOffset: 60,
+        });
+      }
     }
   };
 
@@ -68,7 +85,11 @@ const BookmarkScreen = () => {
           data={likedPosts}
           keyExtractor={(item: any) => item.$id}
           renderItem={({ item }) => (
-            <VideoCard videos={item} profileFlag={"bookmark"} fn={handleUnsaved} />
+            <VideoCard
+              videos={item}
+              profileFlag={"bookmark"}
+              fn={handleUnsaved}
+            />
           )}
           ListEmptyComponent={() => (
             <EmptyState title="No Saved Video" subTitle="No video found!" />

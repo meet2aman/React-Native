@@ -43,13 +43,13 @@ const HomeScreen = () => {
         Toast.show({
           type: "tomatoToast",
           text1: response,
-          topOffset: 50,
+          topOffset: 60,
         });
       } catch (error: any) {
         Toast.show({
           type: "errortomatoToast",
           text1: "Error in Liking Video",
-          topOffset: 50,
+          topOffset: 60,
         });
       }
     }
