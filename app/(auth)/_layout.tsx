@@ -1,6 +1,7 @@
 import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "@/global.css";
+import React from "react";
 // import { Loader } from "../../components";
 // import { useGlobalContext } from "../../context/GlobalProvider";
 

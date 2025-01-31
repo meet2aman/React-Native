@@ -15,7 +15,7 @@ const TabIcon = ({
 }) => {
   return (
     <>
-      <View className="items-center justify-center gap-2 mt-2">
+      <View className="items-center justify-center gap-2 mt-7 ">
         <Image
           source={icon}
           resizeMode="contain"
@@ -24,7 +24,9 @@ const TabIcon = ({
         />
         <Text
           style={{ color: color }}
-          className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
+          className={`${
+            focused ? "font-psemibold" : "font-pregular"
+          } text-xs w-full`}
         >
           {name}
         </Text>
